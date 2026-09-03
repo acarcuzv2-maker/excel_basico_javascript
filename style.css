@@ -1,0 +1,18 @@
+.celda {
+    border: 1px solid black;
+    width: 120px;
+    height: 35px;
+
+}
+
+#hoja {
+    display: grid;
+    grid-template-columns: 50px repeat(10,120px);
+}
+
+.encabezado {
+    border: 1px solid black;
+    height: 35px;
+    font-weight: bold;
+    text-align: center;
+}
