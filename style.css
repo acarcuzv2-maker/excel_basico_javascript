@@ -16,3 +16,7 @@
     font-weight: bold;
     text-align: center;
 }
+
+.celda-seleccionada{ 
+    outline: 2px solid;
+}
