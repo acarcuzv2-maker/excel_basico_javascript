@@ -1,5 +1,4 @@
 let hoja =document.getElementById("hoja");
-
 let cantidadFilas = 15
 let cantidadColumnas = 10
 let datosCeldas ={};
@@ -41,6 +40,9 @@ function crearTokens(formula) {
 }
 
 
+
+
+
 function obtenerReferencias(formula) {
 
     let tokens = crearTokens(formula);
@@ -65,6 +67,10 @@ function obtenerReferencias(formula) {
 
     return referencias;
 }
+
+
+
+
 
 function resolverTokens(tokens) {
 
@@ -106,7 +112,39 @@ function resolverTokens(tokens) {
     return tokensResueltos;
 }
 
+function registrarDependencias(nombreCelda, formula){
 
+    let referencias = obtenerReferencias(formula);
+
+    for (let i = 0; i < referencias.length; i++) {
+
+        let referencia = referencias[i];
+
+        if (!dependencias[referencia]) {
+            dependencias[referencia] = [];
+        }
+
+        dependencias[referencia].push(nombreCelda);
+    }
+}
+
+
+function recalcularDependientes(nombreCelda){
+    if (!dependencias[nombreCelda]) {
+
+        return;
+
+    }
+
+    for (let i = 0; i < dependencias[nombreCelda].length; i++){
+
+        let nombreDependiente = dependencias[nombreCelda][i];
+
+        console.log("Debe recalcularse:", nombreDependiente);
+
+    }
+
+}
 
 
 
@@ -117,6 +155,10 @@ function procesarFormula(contenido, celda) {
      console.log("Es una fórmula");
 
     let formula = contenido.substring(1);
+
+    registrarDependencias(celda.dataset.nombre,formula);
+
+    console.log("Dependencias:", dependencias);
 
     let cantidadAbiertos = 0;
     let cantidadCerrados = 0;
@@ -296,6 +338,9 @@ function procesarFormula(contenido, celda) {
 
 }
 
+
+
+
 let letras = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
 
 let esquina = document.createElement("div");
@@ -303,6 +348,9 @@ let esquina = document.createElement("div");
 esquina.className = "encabezado";
 
 hoja.appendChild(esquina);
+
+
+
 
 
 for(let columna =0; columna< cantidadColumnas; columna++){
@@ -316,6 +364,9 @@ for(let columna =0; columna< cantidadColumnas; columna++){
     hoja.appendChild(encabezado);
 }
 
+
+
+
 for (let fila= 1; fila<= cantidadFilas; fila++){
 
 let encabezadoFila =document.createElement("div");
@@ -326,9 +377,10 @@ encabezadoFila.textContent=fila;
 
 hoja.appendChild(encabezadoFila);
 
-    for (let columna= 1; columna<= cantidadColumnas; columna++){
+    
+for (let columna= 1; columna<= cantidadColumnas; columna++){
 
-        let celda= document.createElement("div");
+    let celda= document.createElement("div");
 
         celda.className= "celda";
 
@@ -361,7 +413,7 @@ hoja.appendChild(encabezadoFila);
                 console.log("La celda está vacía");
             }
 
-            });
+        });
 
             celda.addEventListener("input", function(){
 
@@ -386,6 +438,7 @@ hoja.appendChild(encabezadoFila);
                 
             });        
 
+
             celda.addEventListener("blur", function() {
 
                 let contenido = celda.textContent;
@@ -394,9 +447,11 @@ hoja.appendChild(encabezadoFila);
                     procesarFormula(contenido, celda);
                 }
 
+                recalcularDependientes(celda.dataset.nombre);
+
             });
 
         hoja.appendChild(celda);
         }
-        }
+}
 
