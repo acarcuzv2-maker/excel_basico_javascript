@@ -3,6 +3,10 @@ let hoja =document.getElementById("hoja");
 let cantidadFilas = 15
 let cantidadColumnas = 10
 let datosCeldas ={};
+let dependencias ={};
+
+
+
 
 function crearTokens(formula) {
 
@@ -34,6 +38,32 @@ function crearTokens(formula) {
     }
 
     return tokens;
+}
+
+
+function obtenerReferencias(formula) {
+
+    let tokens = crearTokens(formula);
+    let referencias = [];
+
+    for (let i = 0; i < tokens.length; i++) {
+
+        let token = tokens[i];
+
+        if (
+            isNaN(token) &&
+            token !== "+" &&
+            token !== "-" &&
+            token !== "*" &&
+            token !== "/" &&
+            token !== "(" &&
+            token !== ")"
+        ) {
+            referencias.push(token);
+        }
+    }
+
+    return referencias;
 }
 
 function resolverTokens(tokens) {
@@ -75,6 +105,10 @@ function resolverTokens(tokens) {
 
     return tokensResueltos;
 }
+
+
+
+
 
 function procesarFormula(contenido, celda) {
 
@@ -165,18 +199,18 @@ function procesarFormula(contenido, celda) {
             return "#ERROR!";
         }
 
-    } else {
+        } else {
 
-        if (
-            expresion[i] !== "+" &&
-            expresion[i] !== "-" &&
-            expresion[i] !== "*" &&
-            expresion[i] !== "/"
-        ) {
-            return "#ERROR!";
+            if (
+                expresion[i] !== "+" &&
+                expresion[i] !== "-" &&
+                expresion[i] !== "*" &&
+                expresion[i] !== "/"
+            ) {
+                return "#ERROR!";
+            }
+          }
         }
-    }
-}
 
         for (let i = 0; i < expresion.length; i++) {
 
