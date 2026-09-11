@@ -4,150 +4,261 @@ let cantidadFilas = 15
 let cantidadColumnas = 10
 let datosCeldas ={};
 
+function crearTokens(formula) {
+
+    let tokens = [];
+    let tokenActual = "";
+
+    for (let i = 0; i < formula.length; i++) {
+
+        let caracter = formula[i];
+
+        if (
+            (caracter >= "0" && caracter <= "9") ||
+            (caracter >= "A" && caracter <= "Z")
+        ) {
+            tokenActual = tokenActual + caracter;
+        } else {
+
+            if (tokenActual !== "") {
+                tokens.push(tokenActual);
+                tokenActual = "";
+            }
+
+            tokens.push(caracter);
+        }
+    }
+
+    if (tokenActual !== "") {
+        tokens.push(tokenActual);
+    }
+
+    return tokens;
+}
+
+function resolverTokens(tokens) {
+
+    let tokensResueltos = [];
+
+    for (let i = 0; i < tokens.length; i++) {
+
+        let token = tokens[i];
+
+        if (!isNaN(token)) {
+
+            tokensResueltos.push(token);
+
+        } else if (
+            token === "+" ||
+            token === "-" ||
+            token === "*" ||
+            token === "/"
+        ) {
+
+            tokensResueltos.push(token);
+
+        } else {
+
+            if (datosCeldas[token]) {
+
+                let valorReferencia = datosCeldas[token].valor;
+
+                tokensResueltos.push(valorReferencia);
+
+            } else {
+
+                tokensResueltos.push("0");
+
+            }
+        }
+    }
+
+    return tokensResueltos;
+}
+
 function procesarFormula(contenido, celda) {
 
-                if (contenido.startsWith("=")) { //aquí diferenciamos entre formula del demas contenido 
+    if (contenido.startsWith("=")) { //aquí diferenciamos entre formula del demas contenido 
                     
-                    console.log("Es una fórmula");
+     console.log("Es una fórmula");
 
-                    let formula = contenido.substring (1);
+    let formula = contenido.substring(1);
 
-                    let tokens =[];
+    let cantidadAbiertos = 0;
+    let cantidadCerrados = 0;
+    let balance =0;
 
-                    let tokenActual ="";
+    for (let i = 0; i < formula.length; i++) {
 
-                    for (let i = 0; i < formula.length; i++) {
+        if (formula[i] === "(") {
+            cantidadAbiertos++;
+            balance++;
+        }
+
+        if (formula[i] === ")") {
+            cantidadCerrados++;
+            balance--;
+
+            if (balance <0){
+
+                datosCeldas[celda.dataset.nombre].valor = "ERROR!";
+                celda.textContent="ERROR!";
+                return;
+
+            }
+
+        }
+    }
+
+    if (cantidadAbiertos !== cantidadCerrados) {
+
+    datosCeldas[celda.dataset.nombre].valor = "#ERROR!";
+    celda.textContent = "#ERROR!";
+
+    return;
+    }
+
+    while (formula.includes("(")) {
+
+    let inicio = formula.lastIndexOf("(");
+    let fin = formula.indexOf(")", inicio);
+
+    let contenidoParentesis = formula.substring(inicio + 1, fin);
+
+    console.log("Contenido del paréntesis:", contenidoParentesis);
+
+    let tokensParentesis = crearTokens(contenidoParentesis);
+
+    let tokensParentesisResueltos = resolverTokens(tokensParentesis);
+
+    let resultadoParentesis = evaluarExpresion(tokensParentesisResueltos);
+
+        formula =
+            formula.substring(0, inicio) +
+             resultadoParentesis +
+            formula.substring(fin + 1);
+
+            console.log("Fórmula después de resolver paréntesis:", formula);
+                
+    }
+
+    let tokens = crearTokens(formula);
+
+    console.log(tokens);
+
+    let tokensResueltos=resolverTokens(tokens);
+
+    console.log("Tokens resueltos:", tokensResueltos);
+
+    function evaluarExpresion(tokensResueltos) {
+        let expresion = [...tokensResueltos];
+
+        if (expresion.length === 0 || expresion.length % 2 === 0) {
+            return "#ERROR!";
+        }
+
+        for (let i = 0; i < expresion.length; i++) {
+
+    if (i % 2 === 0) {
+
+        if (isNaN(Number(expresion[i]))) {
+            return "#ERROR!";
+        }
+
+    } else {
+
+        if (
+            expresion[i] !== "+" &&
+            expresion[i] !== "-" &&
+            expresion[i] !== "*" &&
+            expresion[i] !== "/"
+        ) {
+            return "#ERROR!";
+        }
+    }
+}
+
+        for (let i = 0; i < expresion.length; i++) {
+
+            if (expresion[i] === "*" || expresion[i] === "/") {
+
+                let izquierda = Number(expresion[i - 1]);
+                let operador = expresion[i];
+                let derecha = Number(expresion[i + 1]);
+
+                let resultadoPrioritario;
+
+                   if (operador === "*") {
+
+                     resultadoPrioritario = izquierda * derecha;
+
+                   }else {
+
+                        if(derecha===0){
+                            return "#DIV/0!";
+
+                        }
                         
-                        let caracter = formula[i];
-
-                        if (
-                            (caracter >= "0" && caracter <= "9") ||
-                            (caracter >= "A" && caracter <= "Z")
-
-                        ) {
-                            tokenActual = tokenActual + caracter;
-
-                            } else {
-
-                                if (tokenActual !== "") {
-
-                                    tokens.push (tokenActual);
-                                   
-                                    tokenActual= "";
-                 
-                                }
-
-                                tokens.push(caracter);
-
-                            }
+                        resultadoPrioritario=izquierda/derecha;
+                    
                     }
 
-                    if (tokenActual !== ""){
+                    expresion.splice(i - 1, 3, resultadoPrioritario);
 
-                        tokens.push(tokenActual);
+                    i = i - 2;
+            }
+        }
 
-                    }
+        for (let i = 0; i < expresion.length; i++) {
 
-                    console.log(tokens);
+            if (expresion[i] === "+" || expresion[i] === "-") {
 
-                    let tokensResueltos= [];
+             let izquierda = Number(expresion[i - 1]);
+             let operador = expresion[i];
+             let derecha = Number(expresion[i + 1]);
 
-                    for (let i= 0; i < tokens.length; i++){
-                        let token = tokens [i];
+             let resultadoSecundario;
 
-                        console.log(token);
-
-                        if (!isNaN(token)){
-
-                            console.log(token + " es un número ");
-
-                            tokensResueltos.push(token);
-                            
-                        }
-
-                        else if (
-                            token === "+" ||
-                            token === "-" ||
-                            token === "*" ||
-                            token === "/" 
-                        ) {
-                            console.log (token + " es un operador");
-
-                            tokensResueltos.push(token);
-
-                        }
-                        else {
-                            console.log(token + " es una referencia");
-
-                            if (datosCeldas[token])  {
-
-                                let valorReferencia = datosCeldas[token].contenido;
-
-                                console.log(
-
-                                    "El valor de " + token + " es " + valorReferencia
-                                    
-                                );
-
-                                tokensResueltos.push(valorReferencia);
-
-                            } else{
-
-                                console.log(token + " está vacía");
-
-                                tokensResueltos.push("0");
-
-                            }
-
-                        }
-
-                        }
-
-                        console.log("Tokens resueltos:", tokensResueltos);
-
-                        let numero1 = Number(tokensResueltos[0]);
-
-                        let operador = tokensResueltos[1];
-
-                        let numero2 = Number(tokensResueltos[2]);
-
-                        let resultado;
-
-                        if (operador === "+") {
-
-                        resultado = numero1 + numero2;
-
-                        } else if (operador === "-") {
-
-                            resultado = numero1 - numero2;
-
-                        } else if (operador === "*") {
-
-                            resultado = numero1 * numero2;
-
-                        } else if (operador === "/") {
-
-                            resultado = numero1 / numero2;
-
-                        }
-
-                        console.log("Resultado final: " + resultado);
-
-                        datosCeldas[celda.dataset.nombre].valor = resultado;
-
-                        celda.textContent = resultado;
-
-
-                        
-
-                } else if (!isNaN(contenido) && contenido.trim() !== "") {
-                       
-                    console.log("Es un número");
-
-                    } else {
-                        console.log("Es un texto");
-        
+                if (operador === "+") {
+                      resultadoSecundario = izquierda + derecha;
+                   } else {
+                      resultadoSecundario = izquierda - derecha;
                 }
+
+                expresion.splice(i - 1, 3, resultadoSecundario);
+
+                i = i - 2;
+            }
+        }
+
+        return expresion[0];
+    }
+
+    let resultadoFinal = evaluarExpresion(tokensResueltos);
+
+    if (resultadoFinal === "#DIV/0!") {
+
+    datosCeldas[celda.dataset.nombre].valor = resultadoFinal;
+    celda.textContent = resultadoFinal;
+
+    return;
+    }   
+
+
+    console.log("Resultado final:", resultadoFinal);
+
+    datosCeldas[celda.dataset.nombre].valor = resultadoFinal;
+    celda.textContent = resultadoFinal;
+
+    } else if (!isNaN(contenido) && contenido.trim() !== "") {
+                       
+        console.log("Es un número");
+
+
+    } else {
+        console.log("Es un texto");
+        
+    }
 
 }
 
@@ -254,4 +365,4 @@ hoja.appendChild(encabezadoFila);
         hoja.appendChild(celda);
         }
         }
-        
+
