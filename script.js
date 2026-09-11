@@ -3,6 +3,10 @@ let cantidadFilas = 15
 let cantidadColumnas = 10
 let datosCeldas ={};
 let dependencias ={};
+let letras = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
+let esquina = document.createElement("div");
+esquina.className = "encabezado";
+hoja.appendChild(esquina);
 
 
 
@@ -40,9 +44,6 @@ function crearTokens(formula) {
 }
 
 
-
-
-
 function obtenerReferencias(formula) {
 
     let tokens = crearTokens(formula);
@@ -67,9 +68,6 @@ function obtenerReferencias(formula) {
 
     return referencias;
 }
-
-
-
 
 
 function resolverTokens(tokens) {
@@ -112,6 +110,7 @@ function resolverTokens(tokens) {
     return tokensResueltos;
 }
 
+
 function registrarDependencias(nombreCelda, formula){
 
     let referencias = obtenerReferencias(formula);
@@ -124,12 +123,38 @@ function registrarDependencias(nombreCelda, formula){
             dependencias[referencia] = [];
         }
 
-        dependencias[referencia].push(nombreCelda);
+        if (!dependencias[referencia].includes(nombreCelda)) {
+            dependencias[referencia].push(nombreCelda);
+        }
+
     }
 }
 
 
-function recalcularDependientes(nombreCelda){
+function recalcularDependientes(nombreCelda,visitadas= []){
+
+    if (visitadas.includes(nombreCelda)){
+        console.log("Referencia circular detectada en: ", nombreCelda);
+        
+        let celdaCircular = document.querySelector(
+            '[data-nombre="' + nombreCelda +'"]'
+        );
+
+        if (celdaCircular){
+            celdaCircular.textContent="#CIRCULAR!"
+        }
+
+        if(datosCeldas[nombreCelda]){
+            datosCeldas[nombreCelda].valor = "#CIRCULAR!";
+
+        }
+
+        return;
+
+    }
+
+    visitadas.push(nombreCelda);
+
     if (!dependencias[nombreCelda]) {
 
         return;
@@ -140,10 +165,41 @@ function recalcularDependientes(nombreCelda){
 
         let nombreDependiente = dependencias[nombreCelda][i];
 
-        console.log("Debe recalcularse:", nombreDependiente);
+        let celdaDependiente = document.querySelector(
+          
+            '[data-nombre="' + nombreDependiente + '"]'
+       
+        );
+
+        let formulaDependiente = 
+        datosCeldas[nombreDependiente].contenido;
+
+        procesarFormula(formulaDependiente, celdaDependiente);
+
+        recalcularDependientes(nombreDependiente, [...visitadas]);
+
+        console.log("Recalculada:", nombreDependiente);
 
     }
 
+}
+
+
+function limpiarDependencias (nombreCelda){
+
+    for (let referencia in dependencias){
+
+        dependencias[referencia] =
+        dependencias[referencia].filter(function(celda) {
+            return celda!== nombreCelda;
+
+        });
+
+        if (dependencias[referencia].length ===0) {
+            delete dependencias[referencia];
+        }
+
+    }
 }
 
 
@@ -341,18 +397,6 @@ function procesarFormula(contenido, celda) {
 
 
 
-let letras = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
-
-let esquina = document.createElement("div");
-
-esquina.className = "encabezado";
-
-hoja.appendChild(esquina);
-
-
-
-
-
 for(let columna =0; columna< cantidadColumnas; columna++){
 
     let encabezado =document.createElement("div")
@@ -363,8 +407,6 @@ for(let columna =0; columna< cantidadColumnas; columna++){
 
     hoja.appendChild(encabezado);
 }
-
-
 
 
 for (let fila= 1; fila<= cantidadFilas; fila++){
@@ -443,9 +485,17 @@ for (let columna= 1; columna<= cantidadColumnas; columna++){
 
                 let contenido = celda.textContent;
 
+                limpiarDependencias(celda.dataset.nombre);
+
                 if (contenido.startsWith("=")) {
                     procesarFormula(contenido, celda);
                 }
+
+                console.log(
+                    "voy a recalcular:",
+                    celda.dataset.nombre,
+                    dependencias[celda.dataset.nombre]
+                );
 
                 recalcularDependientes(celda.dataset.nombre);
 
