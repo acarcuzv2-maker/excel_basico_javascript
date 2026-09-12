@@ -281,6 +281,77 @@ function procesarFormula(contenido, celda) {
 
     }
 
+    if (formula.startsWith("PROMEDIO(")){
+
+        console.log ("Se detectó una función PROMEDIO");
+
+        let inicio = formula.indexOf("(");
+        let fin = formula.lastIndexOf(")");
+
+        let contenidoPromedio = formula.substring(inicio +1, fin);
+
+        let argumentos = contenidoPromedio.split(",");
+
+
+        if (contenidoPromedio.includes(":")) {
+
+            let partesRango = contenidoPromedio.split(":");
+
+            let inicioRango =partesRango[0];
+            let finRango = partesRango [1];
+
+            let letraInicio = inicioRango [0];
+            let filaInicio =Number(inicioRango.substring(1));
+
+            let filaFin = Number(finRango.substring(1));
+
+            let argumentosRango=[];
+
+            for (let fila = filaInicio; fila <= filaFin; fila++){
+                argumentosRango.push(letraInicio + fila);
+
+            }
+
+            argumentos = argumentosRango;
+        }    
+
+        for (let i =0; i < argumentos.length; i++){
+
+            let referencia = argumentos [i];
+
+            if (!dependencias[referencia]){
+                dependencias[referencia]=[];
+
+            }
+            if (!dependencias[referencia].includes(celda.dataset.nombre)){
+                dependencias[referencia].push(celda.dataset.nombre);
+
+            }
+        }
+
+        let sumaPromedio = 0;
+
+        for ( let i =0; i < argumentos.length; i++){
+
+            let nombreCelda = argumentos[i];
+
+            if (datosCeldas[nombreCelda]){
+                sumaPromedio =
+                sumaPromedio + Number(datosCeldas[nombreCelda].valor);
+            }
+        }  
+
+                let resultadoPromedio=
+                sumaPromedio/argumentos.length;
+
+                datosCeldas[celda.dataset.nombre].valor = resultadoPromedio;
+
+                celda.textContent=resultadoPromedio;
+                
+                return;
+
+    }
+
 
     
     registrarDependencias(celda.dataset.nombre,formula);
