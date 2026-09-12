@@ -212,6 +212,77 @@ function procesarFormula(contenido, celda) {
 
     let formula = contenido.substring(1);
 
+
+    if (formula.startsWith("SUMA(")) {
+        console.log("Se detectó una función SUMA");
+
+        let inicio=formula.indexOf ("(");
+        let fin = formula.lastIndexOf(")");
+
+        let contenidoSuma = formula.substring(inicio +1, fin);
+        let argumentos = contenidoSuma.split (",");
+
+        if (contenidoSuma.includes(":")){
+
+            let partesRango = contenidoSuma.split(":");
+
+            let inicioRango = partesRango[0];
+            let finRango = partesRango[1];
+
+            let letraInicio=inicioRango[0];
+            let filaInicio = Number(inicioRango.substring(1));
+
+            let letraFin=finRango[0];
+            let filaFin=Number(finRango.substring(1));
+
+            let argumentosRango = [];
+
+            for (let fila = filaInicio; fila <= filaFin; fila ++){
+                argumentosRango.push(letraInicio + fila);
+
+                console.log("Celdas del rango:", argumentosRango);
+            }      
+
+            argumentos = argumentosRango;
+        
+        }
+
+
+        for (let i = 0; i < argumentos.length; i++) {
+
+            let referencia = argumentos[i];
+
+            if (!dependencias[referencia]) {
+                dependencias[referencia] = [];
+            }
+
+            if (!dependencias[referencia].includes(celda.dataset.nombre)) {
+                dependencias[referencia].push(celda.dataset.nombre);
+            }
+        }
+
+            let resultadoSuma = 0;
+
+            for (let i = 0; i < argumentos.length; i++) {
+
+                let nombreCelda = argumentos[i];
+
+                if (datosCeldas[nombreCelda]) {
+                    resultadoSuma =
+                        resultadoSuma + Number(datosCeldas[nombreCelda].valor);
+                }
+            }    
+
+        datosCeldas[celda.dataset.nombre].valor=resultadoSuma;
+
+        celda.textContent=resultadoSuma;
+
+        return;
+
+    }
+
+
+    
     registrarDependencias(celda.dataset.nombre,formula);
 
     console.log("Dependencias:", dependencias);
