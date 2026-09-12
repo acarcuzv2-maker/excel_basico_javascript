@@ -384,7 +384,7 @@ function procesarFormula(contenido, celda) {
             }
 
             argumentos = argumentosRango;
-            
+
         }
 
         for (let i = 0; i< argumentos.length; i++){
@@ -425,6 +425,79 @@ function procesarFormula(contenido, celda) {
         return;
     
     }
+
+
+    if (formula.startsWith("MIN(")){
+
+        let inicio = formula.indexOf("(");
+        let fin= formula.lastIndexOf(")");
+
+        let contenidoMin = formula.substring(inicio +1, fin );
+
+        let argumentos = contenidoMin.split(",");
+
+        if (contenidoMin.includes(":")) {
+
+            let partesRango = contenidoMin.split(":");
+
+            let inicioRango = partesRango[0];
+            let finRango = partesRango[1];
+
+            let letraInicio = inicioRango[0];
+            let filaInicio = Number(inicioRango.substring(1));
+
+            let filaFin = Number(finRango.substring(1));
+
+            let argumentosRango = [];
+
+            for (let fila = filaInicio; fila <= filaFin; fila++) {
+                argumentosRango.push(letraInicio + fila);
+            }
+
+            argumentos = argumentosRango;
+        }
+
+        for (let i = 0; i < argumentos.length; i++) {
+
+            let referencia = argumentos[i];
+
+            if (!dependencias[referencia]) {
+                dependencias[referencia] = [];
+            }
+
+            if (!dependencias[referencia].includes(celda.dataset.nombre)) {
+                dependencias[referencia].push(celda.dataset.nombre);
+            }
+        }
+
+
+        let valores = [];
+
+        for (let i=0; i < argumentos.length; i++){
+
+            let nombreCelda= argumentos[i];
+
+            if (datosCeldas[nombreCelda]){
+                valores.push(
+                    Number(datosCeldas[nombreCelda].valor)
+
+                );
+            }
+        }
+
+        let resultadoMin = Math.min(...valores);
+
+        datosCeldas[celda.dataset.nombre].valor = resultadoMin;
+
+        celda.textContent= resultadoMin;
+
+        return;
+
+    }
+
+
+
+
 
 
     
