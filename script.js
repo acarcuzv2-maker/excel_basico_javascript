@@ -1,4 +1,5 @@
 let hoja =document.getElementById("hoja");
+let botonExportar = document.getElementById("exportarCsv");
 let cantidadFilas = 15
 let cantidadColumnas = 10
 let datosCeldas ={};
@@ -954,3 +955,50 @@ function recalcularDependientes(nombreCelda,visitadas= []){
 
 }
 
+
+
+botonExportar.addEventListener("click", function(){
+
+    let contenidoCsv= "";
+
+    for (let fila = 1; fila <= cantidadFilas; fila ++) {
+        
+        let datosFila=[];
+
+        for (let columna = 0; columna < cantidadColumnas; columna++) {
+            
+            let nombreCelda= letras[columna] + fila; 
+
+            let valorCelda = "";
+
+            if (datosCeldas[nombreCelda]) {
+                valorCelda = datosCeldas[nombreCelda].valor;
+            
+            }
+
+            datosFila.push(valorCelda);
+
+        }
+
+        contenidoCsv=contenidoCsv + datosFila.join(",") + "\n";
+
+    }
+
+    console.log(contenidoCsv);
+
+    let archivo = new Blob( 
+        [contenidoCsv],
+        { type : "text/csv"}
+
+
+    );
+
+    let enlace = document. createElement("a");
+
+    enlace.href = URL.createObjectURL(archivo);
+
+    enlace.download = "HojaClara.csv";
+
+    enlace.click();
+
+});
