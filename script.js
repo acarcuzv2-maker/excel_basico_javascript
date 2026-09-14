@@ -111,11 +111,14 @@ for (let columna= 1; columna<= cantidadColumnas; columna++){
 
                 recalcularDependientes(celda.dataset.nombre);
 
+                guardarDatos();
+
             });
 
         hoja.appendChild(celda);
         }
 }
+
 
 
 function crearTokens(formula) {
@@ -349,6 +352,61 @@ function referenciaValida(nombreCelda) {
     return columnaExiste && filaExiste;
 }
 
+
+function guardarDatos (){
+    localStorage.setItem(
+        "hojaClaraDatos",
+        JSON.stringify(datosCeldas)
+
+    );
+}
+
+function cargarDatos() {
+
+    let datosGuardados = localStorage.getItem("hojaClaraDatos");
+
+    console.log("Datos guardados encontrados:", datosGuardados);
+
+    if (datosGuardados) {
+        datosCeldas = JSON.parse(datosGuardados);
+        console.log("datosCeldas recuperado:", datosCeldas);
+
+
+    }
+}
+cargarDatos();
+
+console.log("Después de cargarDatos:", datosCeldas);
+
+
+console.log(dependencias);
+
+for (let nombreCelda in datosCeldas) {
+
+    let celda = document.querySelector(
+        '[data-nombre="' + nombreCelda + '"]'
+    );
+
+    console.log("Buscando:", nombreCelda, celda);
+
+    if (celda) {
+        celda.textContent = datosCeldas[nombreCelda].valor;
+    }
+}
+
+for (let nombreCelda in datosCeldas) {
+
+    let contenido = datosCeldas[nombreCelda].contenido;
+
+    if (contenido && contenido.startsWith("=")) {
+
+        let celda = document.querySelector(
+            '[data-nombre="' + nombreCelda + '"]'
+        );
+
+        procesarFormula(contenido, celda);
+    }
+}
 
 function procesarFormula(contenido, celda) {
 
