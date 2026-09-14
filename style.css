@@ -20,3 +20,14 @@
 .celda-seleccionada{ 
     outline: 2px solid;
 }
+
+
+#barraInfo { 
+    margin: 10 px 0;
+    padding: 8px;
+    border: 1px solid black;
+}
+
+#barraInfo span {
+    margin-right: 20px;
+}

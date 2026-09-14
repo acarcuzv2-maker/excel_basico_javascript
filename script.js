@@ -1,5 +1,6 @@
 let hoja =document.getElementById("hoja");
 let botonExportar = document.getElementById("exportarCsv");
+let botonLimpiar = document.getElementById("limpiarHoja");
 let celdaActual= document.getElementById("celdaActual");
 let contenidoActual = document.getElementById("contenidoActual");
 let cantidadFilas = 15
@@ -1013,4 +1014,22 @@ botonExportar.addEventListener("click", function(){
 
     enlace.click();
 
+});
+
+botonLimpiar.addEventListener("click", function() {
+
+    datosCeldas={};
+    dependencias = {};
+
+    localStorage.removeItem("hojaClaraDatos");
+
+    let celdas = document.querySelectorAll(".celda");
+
+    for (let i = 0; i < celdas.length; i++) {
+        celdas [i].textContent="";
+
+    }
+
+    celdaActual.textContent="Celda: -";
+    contenidoActual.textContent="Contenido: -";
 });
