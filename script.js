@@ -1,5 +1,7 @@
 let hoja =document.getElementById("hoja");
 let botonExportar = document.getElementById("exportarCsv");
+let celdaActual= document.getElementById("celdaActual");
+let contenidoActual = document.getElementById("contenidoActual");
 let cantidadFilas = 15
 let cantidadColumnas = 10
 let datosCeldas ={};
@@ -58,6 +60,16 @@ for (let columna= 1; columna<= cantidadColumnas; columna++){
             celda.classList.add("celda-seleccionada");
             
             let nombre= celda.dataset.nombre;
+
+            celdaActual.textContent="Celda: " + nombre;
+
+            if (datosCeldas[nombre]) {
+                contenidoActual.textContent=
+                "Contenido: " + datosCeldas[nombre].contenido;
+
+            } else {
+                contenidoActual.textContent="Contenido: ";
+            }
 
             console.log("Seleccionaste " + nombre);
 
