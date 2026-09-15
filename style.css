@@ -31,3 +31,8 @@
 #barraInfo span {
     margin-right: 20px;
 }
+
+.valor-negativo {
+    color: red;
+
+}

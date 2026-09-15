@@ -88,11 +88,11 @@ for (let columna= 1; columna<= cantidadColumnas; columna++){
                 let contenido = celda.textContent
 
                 if (contenido.trim() === ""){
-
                     delete datosCeldas[celda.dataset.nombre];
 
-                    console.log(datosCeldas);
+                    celda.classList.remove("valor-negativo");
 
+                    console.log(datosCeldas);
                     return;
 
                 }
@@ -103,7 +103,9 @@ for (let columna= 1; columna<= cantidadColumnas; columna++){
 
                         valor: contenido
                     };
-                
+
+                aplicarFormatoCelda(celda, contenido);
+
             });        
 
 
@@ -132,8 +134,6 @@ for (let columna= 1; columna<= cantidadColumnas; columna++){
         hoja.appendChild(celda);
         }
 }
-
-
 
 function crearTokens(formula) {
 
@@ -405,6 +405,8 @@ for (let nombreCelda in datosCeldas) {
 
     if (celda) {
         celda.textContent = datosCeldas[nombreCelda].valor;
+        aplicarFormatoCelda(celda, datosCeldas[nombreCelda].valor);
+        
     }
 }
 
@@ -421,6 +423,17 @@ for (let nombreCelda in datosCeldas) {
         procesarFormula(contenido, celda);
     }
 }
+
+function aplicarFormatoCelda (celda, valor) {
+    
+    if (Number(valor) <0 ) {
+        celda.classList.add("valor-negativo");
+
+    }else {
+        celda.classList.remove("valor-negativo");
+    }
+}
+
 
 function procesarFormula(contenido, celda) {
 
@@ -514,6 +527,8 @@ function procesarFormula(contenido, celda) {
         datosCeldas[celda.dataset.nombre].valor=resultadoSuma;
 
         celda.textContent=resultadoSuma;
+
+        aplicarFormatoCelda(celda, celda.textContent);
 
         return;
 
@@ -617,6 +632,9 @@ function procesarFormula(contenido, celda) {
          datosCeldas[celda.dataset.nombre].valor = resultadoPromedio;
 
          celda.textContent=resultadoPromedio;
+
+         aplicarFormatoCelda(celda, celda.textContent);
+
                 
          return;
 
@@ -712,6 +730,8 @@ function procesarFormula(contenido, celda) {
         datosCeldas[celda.dataset.nombre].valor = resultadoMax;
 
         celda.textContent= resultadoMax;
+
+        aplicarFormatoCelda(celda, celda.textContent);
         
         return;
     
@@ -805,6 +825,8 @@ function procesarFormula(contenido, celda) {
 
         celda.textContent= resultadoMin;
 
+        aplicarFormatoCelda(celda, celda.textContent);
+
         return;
 
     }
@@ -892,11 +914,16 @@ function procesarFormula(contenido, celda) {
     datosCeldas[celda.dataset.nombre].valor = resultadoFinal;
     celda.textContent = resultadoFinal;
 
+    aplicarFormatoCelda(celda, resultadoFinal);
+
     return;
     }   
 
 
     console.log("Resultado final:", resultadoFinal);
+    aplicarFormatoCelda(celda, resultadoFinal);
+
+    console.log("Clase después del formato:", celda.className);
 
     datosCeldas[celda.dataset.nombre].valor = resultadoFinal;
     celda.textContent = resultadoFinal;
@@ -1033,3 +1060,4 @@ botonLimpiar.addEventListener("click", function() {
     celdaActual.textContent="Celda: -";
     contenidoActual.textContent="Contenido: -";
 });
+
