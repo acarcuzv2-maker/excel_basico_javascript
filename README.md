@@ -58,13 +58,14 @@ Ejemplos:
 
 ## Documentación técnica
 
-La documentación técnica del proyecto incluye la explicación de la problemática, diagramas de flujo, pseudocódigos, diseño de la estructura de datos, manual de usuario y bitácora de desarrollo.
+La documentación técnica completa del proyecto se encuentra disponible en:
+
+[Ver documentación técnica](Documentacion_HojaClara.pdf)
 
 ## Video de demostración
 
-Enlace al video de demostración:
+[Ver video de demostración](AQUI-PEGAS-TU-ENLACE)
 
-[PENDIENTE: colocar aquí el enlace al video]
 
 ## Autor
 
