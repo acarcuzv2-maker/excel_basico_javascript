@@ -52,17 +52,13 @@ function resolverTokens(tokens) {
             tokensResueltos.push(token);
 
         } else {
-
-            if (datosCeldas[token]) {
-
-                let valorReferencia = datosCeldas[token].valor;
-
-                tokensResueltos.push(valorReferencia);
-
+            if (!referenciaValida(token)) {
+                tokensResueltos.push("#REF!");
+            } else if (!datosCeldas[token]) {
+                tokensResueltos.push("#REF!");
             } else {
-
-                tokensResueltos.push("0");
-
+                let valorReferencia = datosCeldas[token].valor;
+                tokensResueltos.push(valorReferencia);
             }
         }
     }
@@ -72,6 +68,11 @@ function resolverTokens(tokens) {
 
 function evaluarExpresion(tokensResueltos) {
         let expresion = [...tokensResueltos];
+
+        if (expresion.includes("#REF!")){
+            return "#REF!";
+            
+        }
 
         if (expresion.length === 0 || expresion.length % 2 === 0) {
             return "#ERROR!";
